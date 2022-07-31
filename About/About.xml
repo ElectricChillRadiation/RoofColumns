@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
 	<packageId>bluechill9.RoofColumn</packageId>
-	<name>RoofColumn</name>
+	<name>Roof Columns</name>
 	<author>bluechill9</author>
 	<supportedVersions>
 		<li>1.3</li>
 	</supportedVersions>
 	<description>
 Adds several columns to support dynamic expansion and retraction of roofs.
-Heaviest column creates a roof that enemy raiders can't drop through.
+
+Heaviest column creates a roof that enemy raiders can't drop through. Supports power-based expansion & retraction to work with power logic mods.
+
 Inspired by https://steamcommunity.com/sharedfiles/filedetails/?id=2809986778.
+
+Made to work with https://steamcommunity.com/sharedfiles/filedetails/?id=2013476665
 </description>
 
 </ModMetaData>
