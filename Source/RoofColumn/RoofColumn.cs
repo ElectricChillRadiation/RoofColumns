@@ -23,6 +23,11 @@ namespace RoofColumn
 			UI_TOGGLE_IS_ON = ContentFinder<Texture2D>.Get("UI/Toggle_IsOn", true);
 		}
 
+		private RoofColumnSettings settings;
+		protected BaseRoofColumn() {
+			settings = LoadedModManager.GetMod<RoofColumnMod>().GetSettings<RoofColumnSettings>();
+		}
+
 		protected abstract int GetRadius();
 		protected abstract int TicksPerAnimation();
 
@@ -176,12 +181,12 @@ namespace RoofColumn
 			var roofGrid = Find.CurrentMap.roofGrid;
 			var roofDef = GetRoofTypeDef();
 
-			if (!roofGrid.Roofed(this.InteractionCell)) {
+			if (settings.overwriteExistingRoofs || !roofGrid.Roofed(this.InteractionCell)) {
 				roofGrid.SetRoof(this.InteractionCell, roofDef);
 			}
 
 			foreach (IntVec3 cell in CellRect.CenteredOn(this.InteractionCell, currentFilledRadius)) {
-				if (!roofGrid.Roofed(cell)) {
+				if (settings.overwriteExistingRoofs || !roofGrid.Roofed(cell)) {
 					roofGrid.SetRoof(cell, roofDef);
 				}
 			}

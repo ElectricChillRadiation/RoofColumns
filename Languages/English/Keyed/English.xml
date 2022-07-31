@@ -4,5 +4,8 @@
     <RC_CannotOverlapOtherRoofColumns>The Roof Column cannot overlap other Roof Columns.</RC_CannotOverlapOtherRoofColumns>
     <RC_NeedPowerRetract>Cannot retract roof without power.</RC_NeedPowerRetract>
     <RC_NeedPowerExpand>Cannot expand roof without power.</RC_NeedPowerExpand>
+    <RC_RoofColumnName>RoofColumns</RC_RoofColumnName>
+    <RC_OverwriteLabel>Overwrite Existing Roofs</RC_OverwriteLabel>
+    <RC_OverwriteTooltip>If expanding and there's a roof in the way, overwrite the roof with the one from the column.</RC_OverwriteTooltip>
 
 </LanguageData>
