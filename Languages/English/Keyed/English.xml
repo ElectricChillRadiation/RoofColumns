@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+    <RC_CannotOverlapOtherRoofColumns>The Roof Column cannot overlap other Roof Columns.</RC_CannotOverlapOtherRoofColumns>
+    <RC_NeedPowerRetract>Cannot retract roof without power.</RC_NeedPowerRetract>
+    <RC_NeedPowerExpand>Cannot expand roof without power.</RC_NeedPowerExpand>
+
+</LanguageData>

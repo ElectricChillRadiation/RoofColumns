@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <ResearchProjectDef>
+    <defName>SimpleRoofColumnRes</defName>
+    <label>simple roof columns</label>
+    <description>Unlocks simple roof columns.</description>
+    <baseCost>1000</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>Electricity</li>
+    </prerequisites>
+    <researchViewX>6.00</researchViewX>
+    <researchViewY>4.25</researchViewY>  
+  </ResearchProjectDef>
+
+  <ResearchProjectDef>
+    <defName>RoofColumnRes</defName>
+    <label>roof columns</label>
+    <description>Unlocks roof columns.</description>
+    <baseCost>2000</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>SimpleRoofColumnRes</li>
+    </prerequisites>
+    <researchViewX>9.00</researchViewX>
+    <researchViewY>4.80</researchViewY>
+  </ResearchProjectDef>
+
+  <ResearchProjectDef>
+    <defName>IndustrialRoofColumnRes</defName>
+    <label>industrial roof columns</label>
+    <description>Unlocks industrial-strength roof columns.</description>
+    <baseCost>5000</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>RoofColumnRes</li>
+    </prerequisites>
+    <researchViewX>10.00</researchViewX>
+    <researchViewY>4.75</researchViewY>
+  </ResearchProjectDef>
+
+</Defs>

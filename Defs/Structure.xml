@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef Name="BaseRoofColumn" ParentName="BuildingBase" Abstract="True">
+    <defName>BaseRoofColumn</defName>
+    <graphicData>
+      <texPath>Things/RoofColumn_base</texPath>
+      <drawSize>(1.25,1.25)</drawSize>
+      <drawOffset>(0,0,0.2)</drawOffset>
+      <graphicClass>Graphic_Single</graphicClass>
+      <shadowData>
+        <volume>(0.3, 0.5, 0.3)</volume>
+        <offset>(0,0,-0.23)</offset>
+      </shadowData>
+      <damageData>
+        <rect>(0.2,0.2,0.6,0.6)</rect>
+      </damageData>
+    </graphicData>
+    <statBases>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <rotatable>false</rotatable>
+    <tickerType>Normal</tickerType>
+    <killedLeavings>
+      <ChunkSlagSteel>1</ChunkSlagSteel>
+    </killedLeavings>
+    <leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>Impassable</passability>
+    <blockWind>true</blockWind>
+    <castEdgeShadows>true</castEdgeShadows>
+    <fillPercent>1</fillPercent>
+    <coversFloor>true</coversFloor>
+    <selectable>true</selectable>
+    <neverMultiSelect>false</neverMultiSelect>
+    <useStuffTerrainAffordance>true</useStuffTerrainAffordance>
+    <holdsRoof>true</holdsRoof>
+    <designationCategory>Structure</designationCategory>
+    <blockLight>true</blockLight>
+    <interactionCellOffset>(0,0,0)</interactionCellOffset>
+    <hasInteractionCell>true</hasInteractionCell>
+    <canOverlapZones>false</canOverlapZones>
+    <fertility>0</fertility>
+    <size>(1,1)</size>
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+    <building>
+      <isInert>true</isInert>
+      <isPlaceOverableWall>true</isPlaceOverableWall>
+      <expandHomeArea>false</expandHomeArea>
+      <ai_combatDangerous>false</ai_combatDangerous>
+      <ai_chillDestination>false</ai_chillDestination>
+      <destroySound>BuildingDestroyed_Metal_Big</destroySound>
+    </building>
+    <damageMultipliers>
+      <li>
+        <damageDef>Bomb</damageDef>
+        <multiplier>2</multiplier>
+      </li>
+      <li>
+        <damageDef>Thump</damageDef>
+        <multiplier>2</multiplier>
+      </li>
+    </damageMultipliers>
+    <placeWorkers>
+      <li>RoofColumn.PlaceWorker_PreventAdjacentRoofColumns</li>
+    </placeWorkers>
+    <drawPlaceWorkersWhileSelected>true</drawPlaceWorkersWhileSelected>
+    <designationHotKey>Misc3</designationHotKey>
+  </ThingDef>
+
+  <ThingDef ParentName="BaseRoofColumn" Class="RoofColumn.RoofColumn_ThingDef">
+    <defName>ThinRoofColumn</defName>
+    <label>Simple Roof Column</label>
+    <description>Simple roof column, provides a thin roof over a 6x6 area.</description>
+    <thingClass>RoofColumn.ThinRoofColumn</thingClass>
+    <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+    <roofRadius>6</roofRadius>
+    <ticksPerAnimation>3</ticksPerAnimation>
+    <researchPrerequisites>
+      <li>SimpleRoofColumnRes</li>
+    </researchPrerequisites>
+    <costList>
+      <Steel>100</Steel>
+      <ComponentIndustrial>5</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>300</MaxHitPoints>
+      <WorkToBuild>300</WorkToBuild>
+      <Mass>15</Mass>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <shortCircuitInRain>false</shortCircuitInRain>
+        <basePowerConsumption>50</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable" />
+      <li Class="CompProperties_Breakdownable" />
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="BaseRoofColumn" Class="RoofColumn.RoofColumn_ThingDef">
+    <defName>ConstructedRoofColumn</defName>
+    <label>Roof Column</label>
+    <description>A roof column, provides a roof over a 6x6 area.</description>
+    <thingClass>RoofColumn.ConstructedRoofColumn</thingClass>
+    <terrainAffordanceNeeded>Medium</terrainAffordanceNeeded>
+    <roofRadius>6</roofRadius>
+    <ticksPerAnimation>5</ticksPerAnimation>
+    <researchPrerequisites>
+      <li>RoofColumnRes</li>
+    </researchPrerequisites>
+    <costList>
+      <Steel>250</Steel>
+      <ComponentIndustrial>10</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>1000</MaxHitPoints>
+      <WorkToBuild>600</WorkToBuild>
+      <Mass>40</Mass>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <shortCircuitInRain>false</shortCircuitInRain>
+        <basePowerConsumption>50</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable" />
+      <li Class="CompProperties_Breakdownable" />
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="BaseRoofColumn" Class="RoofColumn.RoofColumn_ThingDef">
+    <defName>MountainRoofColumn</defName>
+    <label>Industrial Roof Column</label>
+    <description>An industrial strength roof column, provides a roof over a 6x6 area that's impossible for enemy raiders to drop through.</description>
+    <thingClass>RoofColumn.MountainRoofColumn</thingClass>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <roofRadius>6</roofRadius>
+    <ticksPerAnimation>10</ticksPerAnimation>
+    <researchPrerequisites>
+      <li>IndustrialRoofColumnRes</li>
+    </researchPrerequisites>
+    <costList>
+      <Steel>500</Steel>
+      <ComponentIndustrial>25</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>5000</MaxHitPoints>
+      <WorkToBuild>1000</WorkToBuild>
+      <Mass>100</Mass>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <shortCircuitInRain>false</shortCircuitInRain>
+        <basePowerConsumption>50</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable" />
+      <li Class="CompProperties_Breakdownable" />
+    </comps>
+  </ThingDef>
+
+</Defs>
