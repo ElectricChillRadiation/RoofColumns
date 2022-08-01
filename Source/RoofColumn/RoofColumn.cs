@@ -42,6 +42,13 @@ namespace RoofColumn
 			}
 		}
 
+		public override void ExposeData()
+		{
+			Scribe_Values.Look(ref toggleExpandRoofWithPower, "RC_toggleExpandRoofWithPower", false);
+
+			base.ExposeData();
+		}
+
 		public override IEnumerable<Gizmo> GetGizmos()
 		{
 			foreach (Gizmo gizmo in base.GetGizmos())

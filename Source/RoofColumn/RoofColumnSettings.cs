@@ -10,7 +10,7 @@ namespace RoofColumn
 
         public override void ExposeData()
         {
-            Scribe_Values.Look(ref overwriteExistingRoofs, "overwriteExistingRoofs");
+            Scribe_Values.Look(ref overwriteExistingRoofs, "RC_overwriteExistingRoofs", false);
 
             base.ExposeData();
         }
