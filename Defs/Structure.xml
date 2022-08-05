@@ -18,7 +18,7 @@
     <statBases>
       <Flammability>1.0</Flammability>
     </statBases>
-    <rotatable>false</rotatable>
+    <rotatable>true</rotatable>
     <tickerType>Normal</tickerType>
     <killedLeavings>
       <ChunkSlagSteel>1</ChunkSlagSteel>

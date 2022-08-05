@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace RoofColumn
 {
+	// TODO: Refactor all size computation into its own static class to enable everything
+	// to be sane and have less places to copy-paste.
+
 	public class RoofColumn_ThingDef : ThingDef
 	{
 		public int roofRadius = 5;
@@ -21,6 +25,10 @@ namespace RoofColumn
 			UI_RETRACT = ContentFinder<Texture2D>.Get("UI/Retract", true);
 			UI_TOGGLE_IS_OFF = ContentFinder<Texture2D>.Get("UI/Toggle_IsOff", true);
 			UI_TOGGLE_IS_ON = ContentFinder<Texture2D>.Get("UI/Toggle_IsOn", true);
+			UI_OVERWRITE_ON = ContentFinder<Texture2D>.Get("UI/Overwrite_IsOn", true);
+			UI_OVERWRITE_OFF = ContentFinder<Texture2D>.Get("UI/Overwrite_IsOff", true);
+			UI_PARTIAL_EXPANSION_OFF = ContentFinder<Texture2D>.Get("UI/PartialExpansion_IsOff", true);
+			UI_PARTIAL_EXPANSION_ON = ContentFinder<Texture2D>.Get("UI/PartialExpansion_IsOn", true);
 		}
 
 		private RoofColumnSettings settings;
@@ -45,6 +53,7 @@ namespace RoofColumn
 		public override void ExposeData()
 		{
 			Scribe_Values.Look(ref toggleExpandRoofWithPower, "RC_toggleExpandRoofWithPower", false);
+			Scribe_Values.Look(ref overwriteExistingRoofs, "RC_overwriteExistingRoofs", false);
 
 			base.ExposeData();
 		}
@@ -94,8 +103,70 @@ namespace RoofColumn
 				};
 			}
 
+			yield return new Command_Action
+			{
+				action = new Action(this.ToggleOverwriteExistingRoofs),
+				defaultLabel = "Overwrite Roofs",
+				defaultDesc = "Ovewrite existing roofs when expanding",
+				icon = this.overwriteExistingRoofs ? BaseRoofColumn.UI_OVERWRITE_ON : BaseRoofColumn.UI_OVERWRITE_OFF
+			};
+
+			// Only allow partial expansion toggle when completely retracted
+			if (!isExpanded && this.timer < 0) {
+				yield return new Command_Action
+				{
+					action = new Action(this.TogglePartialExpansion),
+					defaultLabel = "Partial Expansion",
+					defaultDesc = "Only expand a corner enabling unique designs (such as a landing zone door).",
+					icon = partialExpansion ? BaseRoofColumn.UI_PARTIAL_EXPANSION_ON : BaseRoofColumn.UI_PARTIAL_EXPANSION_OFF
+				};
+			}
+
 			yield break;
 		}
+
+		private bool checkIfOverlap(string message, bool usePartialExpansionState = false)
+		{
+			// Filter out us
+			var roofColumns =
+				from r in PlaceWorker_PreventAdjacentRoofColumns.GetAllRoofColumnsOnMap()
+				where r != this
+				select r;
+			
+			// Check for overlap against our maximum expansion
+			var maximum = expandedCells(GetRadius(), base.Rotation, usePartialExpansionState);
+			foreach (Thing thing in roofColumns)
+			{
+				var other = PlaceWorker_PreventAdjacentRoofColumns.SizeOfThing(thing);
+				if (maximum.Overlaps(other))
+				{
+					Messages.Message(message.Translate(), MessageTypeDefOf.RejectInput, true);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private void TogglePartialExpansion()
+		{
+			// TODO: check if overlaps other roof defs when changing to non-partial expansion from
+			// partial expansion
+			if (this.partialExpansion) {
+				// Changing to non-partial expansion, need to ensure no overlap
+
+				if (checkIfOverlap("RC_CannotExpandOverExistingRoofColumn")) {
+					return;
+				}
+			}
+
+			this.partialExpansion = !this.partialExpansion;
+		}
+
+		private void ToggleOverwriteExistingRoofs()
+        {
+            this.overwriteExistingRoofs = !this.overwriteExistingRoofs;
+        }
 
         private void ToggleExpandRoofWithPowerOption()
         {
@@ -149,9 +220,9 @@ namespace RoofColumn
 			int currentFilledRadius = -this.timer / TicksPerAnimation() + radius;
 
 			// Number of cells that should still be filled with our roof after this tick
-			var currentFilled = CellRect.CenteredOn(this.InteractionCell, currentFilledRadius);
+			var currentFilled = expandedCells(currentFilledRadius, base.Rotation);
 			// Total possible cells that could be filled with our roof
-			var maximumFilled = CellRect.CenteredOn(this.InteractionCell, radius);
+			var maximumFilled = expandedCells(radius, base.Rotation);
 
 			// Inverse of 'currentFilled' with respect to 'maximumFilled' should be empty of our roof
 
@@ -188,17 +259,56 @@ namespace RoofColumn
 			var roofGrid = Find.CurrentMap.roofGrid;
 			var roofDef = GetRoofTypeDef();
 
-			if (settings.overwriteExistingRoofs || !roofGrid.Roofed(this.InteractionCell)) {
+			if (settings.overwriteExistingRoofs
+				|| this.overwriteExistingRoofs
+				|| !roofGrid.Roofed(this.InteractionCell)) {
 				roofGrid.SetRoof(this.InteractionCell, roofDef);
 			}
 
-			foreach (IntVec3 cell in CellRect.CenteredOn(this.InteractionCell, currentFilledRadius)) {
-				if (settings.overwriteExistingRoofs || !roofGrid.Roofed(cell)) {
+			foreach (IntVec3 cell in expandedCells(currentFilledRadius, base.Rotation)) {
+				if (settings.overwriteExistingRoofs
+					|| this.overwriteExistingRoofs
+					|| !roofGrid.Roofed(cell)) {
 					roofGrid.SetRoof(cell, roofDef);
 				}
 			}
 
 			return currentFilledRadius >= radius;
+		}
+
+		CellRect expandedCells(int radius, Rot4 rotation, bool usePartialExpansionState = true) {
+			CellRect cells;
+			if (this.partialExpansion && usePartialExpansionState) {
+				cells = new CellRect
+				{
+					minX = this.InteractionCell.x,
+					maxX = this.InteractionCell.x + radius,
+					minZ = this.InteractionCell.z,
+					maxZ = this.InteractionCell.z + radius
+				};
+
+				if (rotation == Rot4.North) {
+					// Nothing to do
+				}
+				else if (rotation == Rot4.East) {
+					cells = cells.MovedBy(new IntVec2 { x = 0, z = -radius });
+				}
+				else if (rotation == Rot4.South) {
+					cells = cells.MovedBy(new IntVec2 { x = -radius, z = -radius });
+				}
+				else if (rotation == Rot4.West) {
+					cells = cells.MovedBy(new IntVec2 { x = -radius, z = 0 });
+				}
+			}
+			else {
+				cells = CellRect.CenteredOn(this.InteractionCell, radius);
+			}
+
+			return cells;
+		}
+
+		public CellRect MaximumExpansion() {
+			return expandedCells(GetRadius(), base.Rotation);
 		}
 
 		public override void Tick()
@@ -208,7 +318,7 @@ namespace RoofColumn
 			if (!initialized) {
 				var roofGrid = Find.CurrentMap.roofGrid;
 				var roofDef = GetRoofTypeDef();
-				foreach (IntVec3 cell in CellRect.CenteredOn(this.InteractionCell, GetRadius())) {
+				foreach (IntVec3 cell in expandedCells(GetRadius(), base.Rotation)) {
 					if (roofGrid.Roofed(cell) && roofGrid.RoofAt(cell).defName == roofDef.defName) {
 						isExpanded = true;
 						break;
@@ -231,6 +341,55 @@ namespace RoofColumn
 				}
 			}
 			previousPowerState = this.Power.PowerOn;
+
+			if (this.partialExpansion && this.previousRotation != base.Rotation) {
+				bool isInvalidRotation = checkIfOverlap("RC_InvalidRotation", true);
+
+				// Is this a valid rotation?
+				if (!isInvalidRotation) {
+					// Rotation changed, instantly move roofs
+					var currentFilledRadius = 0;
+
+					// If we're currently animating, find the radius we're expanded to
+					// within the animation
+					if (this.timer > 0) {
+						// Grab the timer
+						var currentTimer = this.timer;
+						// Compensate for ticks per animation
+						// in case we rotated between animation frames
+						if (currentTimer % TicksPerAnimation() != 0) {
+							currentTimer -= currentTimer % TicksPerAnimation();
+						}
+
+						// If we're expanded, use the expansion animation formula
+						if (this.isExpanded) {
+							currentFilledRadius = currentTimer / TicksPerAnimation();
+						}
+						// Otherwise use the retraction formula
+						else {
+							currentFilledRadius = -currentTimer / TicksPerAnimation() + GetRadius();
+						}
+					}
+					// If we're not currently animating, use the maximum expansion radius
+					// for computation
+					else if (this.isExpanded) {
+						currentFilledRadius = GetRadius();
+					}
+
+					// If we're expanded in some manner
+					if (currentFilledRadius > 0) {
+						// Remove the roof based on our old rotation
+						this.InstantlyRemoveRoof(this.previousRotation);
+						// Add the roof with our new rotation
+						this.InstantlyExpandRoof(currentFilledRadius);
+					}
+				}
+				else {
+					// Invalid rotation, undo
+					base.Rotation = this.previousRotation;
+				}
+			}
+			this.previousRotation = base.Rotation;
 
 			if (this.timer < 0) {
 				// Nothing to do
@@ -255,15 +414,57 @@ namespace RoofColumn
 			}
 		}
 
-		// false = no power
-		// true = power
-		private bool previousPowerState = false;
+        private void InstantlyExpandRoof(int currentFilledRadius)
+        {
+			var roofGrid = Find.CurrentMap.roofGrid;
+			var roofDef = GetRoofTypeDef();
+
+			if (settings.overwriteExistingRoofs
+				|| this.overwriteExistingRoofs
+				|| !roofGrid.Roofed(this.InteractionCell)) {
+				roofGrid.SetRoof(this.InteractionCell, roofDef);
+			}
+
+			foreach (IntVec3 cell in expandedCells(currentFilledRadius, base.Rotation)) {
+				if (settings.overwriteExistingRoofs
+					|| this.overwriteExistingRoofs
+					|| !roofGrid.Roofed(cell)) {
+					roofGrid.SetRoof(cell, roofDef);
+				}
+			}
+        }
+
+        private void InstantlyRemoveRoof(Rot4 rotation)
+        {
+            // Total possible cells that could be filled with our roof
+			var maximumFilled = expandedCells(GetRadius(), rotation);
+
+			var roofGrid = Find.CurrentMap.roofGrid;
+			var roofDef = GetRoofTypeDef();
+			foreach (IntVec3 cell in maximumFilled) {
+				if (roofGrid.Roofed(cell)
+					&& roofGrid.RoofAt(cell).defName == roofDef.defName) {
+					roofGrid.SetRoof(cell, null);
+					FloodFillerFog.FloodUnfog(cell, Find.CurrentMap);
+				}
+			}
+        }
+
+        // false = no power
+        // true = power
+        private bool previousPowerState = false;
+	
+		private Rot4 previousRotation = Rot4.North;
 
 		private int timer = -1;
 
 		public bool isExpanded = false;
 
 		public bool toggleExpandRoofWithPower = false;
+
+		public bool overwriteExistingRoofs = false;
+
+		public bool partialExpansion = false;
 
 		private bool initialized = false;
 
@@ -276,6 +477,14 @@ namespace RoofColumn
 		private static Texture2D UI_TOGGLE_IS_OFF;
 
 		private static Texture2D UI_TOGGLE_IS_ON;
+
+		private static Texture2D UI_OVERWRITE_ON;
+
+		private static Texture2D UI_OVERWRITE_OFF;
+
+		private static Texture2D UI_PARTIAL_EXPANSION_OFF;
+
+		private static Texture2D UI_PARTIAL_EXPANSION_ON;
 	}
 
 	[StaticConstructorOnStartup]

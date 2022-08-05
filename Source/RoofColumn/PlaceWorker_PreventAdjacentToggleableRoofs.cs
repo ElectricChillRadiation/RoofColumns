@@ -12,7 +12,7 @@ namespace RoofColumn
 	{
         public CellRect SizeOfDef(RoofColumn_ThingDef def, IntVec3 loc) {
             if (def == null) {
-                Log.Error("Cannot calcualte SizeOfDef when def is NPE.");
+                Log.Error("Cannot calculate SizeOfDef when def is NPE.");
             }
 
             return CellRect.CenteredOn(loc, def.roofRadius);
@@ -21,7 +21,7 @@ namespace RoofColumn
         // Optimize by avoiding reallocating the entire list between renders/ticks
         // Should only grow in size but in general be the same == speed up
         private static List<Thing> RoofColumns = new List<Thing>();
-        private IEnumerable<Thing> GetAllRoofColumnsOnMap() {
+        public static IEnumerable<Thing> GetAllRoofColumnsOnMap() {
             // Find all Roof Columns on the map
 			RoofColumns.AddRange(
                 Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<BaseRoofColumn>()
@@ -62,7 +62,7 @@ namespace RoofColumn
             bool overlaps = false;
 			foreach (Thing thing2 in GetAllRoofColumnsOnMap())
 			{
-                var other = SizeOfDef(RoofColumn_ThingDefFromThing(thing2), thing2.Position);
+                var other = SizeOfThing(thing2);
 				if (RoofColumnToBePlaced.Overlaps(other))
 				{
 					overlaps = true;
@@ -102,13 +102,17 @@ namespace RoofColumn
 
             var cellRect = SizeOfDef(myThingDef, loc);
 
+            if (thing != null) {
+                cellRect = SizeOfThing(thing);
+            }
+
 			GenDraw.DrawFieldEdges(cellRect.ToList<IntVec3>(), Color.white, null);
 
             // Draw the cells of all Roof Columns
             bool overlaps = false;
 			foreach (Thing thing2 in GetAllRoofColumnsOnMap())
 			{
-                var other = SizeOfDef(RoofColumn_ThingDefFromThing(thing2), thing2.Position);
+                var other = SizeOfThing(thing2);
 				GenDraw.DrawFieldEdges(other.ToList<IntVec3>(), new Color(0.2f, 0.2f, 1f), null);
 				if (cellRect.Overlaps(other))
 				{
@@ -122,5 +126,11 @@ namespace RoofColumn
 			Color edgeColor = overlaps ? Designator_Place.CannotPlaceColor.ToOpaque() : Designator_Place.CanPlaceColor.ToOpaque();
 			GenDraw.DrawFieldEdges(cellRect.ToList<IntVec3>(), edgeColor, null);
 		}
+
+        public static CellRect SizeOfThing(Thing thing)
+        {
+            var column = thing as BaseRoofColumn;
+            return column.MaximumExpansion();
+        }
     }
 }

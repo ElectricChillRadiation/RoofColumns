@@ -6,6 +6,7 @@
     <RC_NeedPowerExpand>Cannot expand roof without power.</RC_NeedPowerExpand>
     <RC_RoofColumnName>RoofColumns</RC_RoofColumnName>
     <RC_OverwriteLabel>Overwrite Existing Roofs</RC_OverwriteLabel>
-    <RC_OverwriteTooltip>If expanding and there's a roof in the way, overwrite the roof with the one from the column.</RC_OverwriteTooltip>
-
+    <RC_OverwriteTooltip>If expanding and there's a roof in the way, overwrite the roof with the one from the column (e.g. support making a 'door' in a mountain by overwriting the im). Note: this is a global toggle, there is an option per-column as well.</RC_OverwriteTooltip>
+    <RC_CannotExpandOverExistingRoofColumn>Can't toggle off partial expansion when there's another roof column in the way at maximum expansion.</RC_CannotExpandOverExistingRoofColumn>
+    <RC_InvalidRotation>Can't rotate a roof column into another roof column.</RC_InvalidRotation>
 </LanguageData>

@@ -3,7 +3,7 @@
 
   <RoofDef>
     <defName>RoofColumnInstanceConstructedRoof</defName>
-    <label>constructed roof</label>
+    <label>artificial roof</label>
     <isThickRoof>false</isThickRoof>
     <filthLeaving>Filth_RubbleBuilding</filthLeaving>
     <soundPunchThrough>PunchThroughRoofMetal</soundPunchThrough>
@@ -11,20 +11,21 @@
 
   <RoofDef>
     <defName>RoofColumnInstanceThinRoof</defName>
-    <label>rock roof (thin)</label>
+    <label>artificial natural-like roof</label>
     <isThickRoof>false</isThickRoof>
     <isNatural>true</isNatural>
-    <filthLeaving>Filth_RubbleRock</filthLeaving>
-    <soundPunchThrough>Roof_Collapse</soundPunchThrough>
+    <filthLeaving>Filth_RubbleBuilding</filthLeaving>
+    <soundPunchThrough>PunchThroughRoofMetal</soundPunchThrough>
   </RoofDef>
 
   <RoofDef>
     <defName>RoofColumnInstanceMountainRoof</defName>
-    <label>overhead mountain</label>
+    <label>artificial impenetrable roof</label>
     <isThickRoof>true</isThickRoof>
     <isNatural>true</isNatural>
     <collapseLeavingThingDef>CollapsedRocks</collapseLeavingThingDef>
-    <filthLeaving>Filth_RubbleRock</filthLeaving>
+    <filthLeaving>Filth_RubbleBuilding</filthLeaving>
+    <soundPunchThrough>PunchThroughRoofMetal</soundPunchThrough>
   </RoofDef>
 
 </Defs>
