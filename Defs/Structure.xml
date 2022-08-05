@@ -6,6 +6,7 @@
       <texPath>Things/RoofColumn_base</texPath>
       <drawSize>(1.25,1.25)</drawSize>
       <drawOffset>(0,0,0.2)</drawOffset>
+      <drawRotated>false</drawRotated>
       <graphicClass>Graphic_Single</graphicClass>
       <shadowData>
         <volume>(0.3, 0.5, 0.3)</volume>

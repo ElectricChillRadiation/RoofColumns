@@ -108,7 +108,7 @@ namespace RoofColumn
 				action = new Action(this.ToggleOverwriteExistingRoofs),
 				defaultLabel = "Overwrite Roofs",
 				defaultDesc = "Ovewrite existing roofs when expanding",
-				icon = this.overwriteExistingRoofs ? BaseRoofColumn.UI_OVERWRITE_ON : BaseRoofColumn.UI_OVERWRITE_OFF
+				icon = this.overwriteExistingRoofs || settings.overwriteExistingRoofs ? BaseRoofColumn.UI_OVERWRITE_ON : BaseRoofColumn.UI_OVERWRITE_OFF
 			};
 
 			// Only allow partial expansion toggle when completely retracted
@@ -165,6 +165,11 @@ namespace RoofColumn
 
 		private void ToggleOverwriteExistingRoofs()
         {
+			// Do nothing if settings are overwriting this value (ha!)
+			if (settings.overwriteExistingRoofs) {
+				return;
+			}
+
             this.overwriteExistingRoofs = !this.overwriteExistingRoofs;
         }
 
